@@ -3,6 +3,12 @@
 **Future Health Digital Innovation Challenge · Challenge 7: Climate-Resilient Worker Health**
 Prototype due 20 Nov 2026. Team: Julio (Nur Arifin Akbar) — scaffold v0.1, 15 Nov 2026.
 
+## For the jury
+
+- **Live product:** https://syaikhipin.github.io/heatshield/ (no login, no install — try the "Simulate peak-summer day" button and the "Jury demo — simulated week" section at the bottom)
+- **Demo video (1:56, voiceover):** embedded on the live page, and as a release asset: https://github.com/syaikhipin/heatshield/releases/tag/v0.1
+- **Technical documentation, assumptions & limitations:** [SUBMISSION.md](SUBMISSION.md)
+
 Live heat-risk early warning for outdoor workers in the Gulf: it turns a
 public weather forecast into an auditable WBGT risk tier, a work/rest/
 hydration schedule, and a bilingual worker alert — before heat illness,

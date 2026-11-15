@@ -128,6 +128,19 @@ function simulateSummerDay() {
   render();
 }
 $("simulate").onclick = simulateSummerDay;
+function renderDemo() {
+  const w = HeatDemo.generateDemoWeek(HeatEngine);
+  const k = w.kpis;
+  const kpi = (label, val) => `<div class="kpi"><div class="big">${val}</div><div class="muted">${label}</div></div>`;
+  $("demoBody").innerHTML =
+    `<div class="kpis">${kpi("worker-days protected (simulated)", k.workerDays)}${kpi("peak WBGT °C (simulated week)", k.peakWbgt.toFixed(1))}${kpi("crew-hours at RED or STOP tier", k.totalRedOrWorse)}${kpi("alerts issued (simulated)", k.alertsIssued)}${kpi("average rest compliance", (k.avgCompliance * 100).toFixed(0) + "%")}</div>` +
+    `<table><thead><tr><th>Crew</th><th>Site</th><th>Workers</th><th>Workload</th><th>Crew type</th><th>STOP hours</th><th>Rest compliance</th><th>Status</th></tr></thead><tbody>` +
+    w.crews.map((c) => `<tr><td><b>${c.id}</b></td><td>${c.site}</td><td>${c.workers}</td><td>${c.workload}</td><td>${c.acclimatised ? "Acclimatised" : "New / returning"}</td><td>${c.stopHours}</td><td>${(c.compliance * 100).toFixed(0)}% (${c.restsTaken}/${c.restEvents})</td><td>${c.compliance < 0.7 ? '<span class="tier t-red">Early-alert adaptation ON</span>' : '<span class="tier t-green">Normal</span>'}</td></tr>`).join("") +
+    `</tbody></table>` +
+    `<h3>Week timeline (simulated)</h3><ul>` + w.timeline.map((t) => `<li><b>${t.when}</b> — ${t.what}</li>`).join("") + `</ul>` +
+    `<p class="muted">Reading this honestly: in a peak Gulf week the engine flags many midday hours as STOP for heavy categories. That aligns with the UAE's statutory midday break (12:30–15:00, mid-June to mid-September) — HeatShield's value is making the call hour-by-hour, per crew and workload, before the day starts, and proving rests happened.</p>`;
+}
+$("demoBtn").onclick = renderDemo;
 $("refresh").onclick = () => loadForecast().catch((e) => { $("status").textContent = "Failed: " + e.message; });
 $("site").onchange = () => loadForecast().catch(() => {});
 $("workload").onchange = render; $("accl").onchange = render;

@@ -15,3 +15,5 @@ canvas{width:100%;height:auto}
 .compliance{margin-top:12px}.compliance button{background:#fff;color:var(--ink);margin-right:8px}
 #alertBody{font-size:17px;line-height:1.5}
 footer{padding:0 24px 24px}
+.kpis{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.kpi{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;min-width:150px}.kpi .big{font-size:26px}
+#demoBody ul{line-height:1.6;font-size:14px}

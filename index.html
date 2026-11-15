@@ -69,12 +69,19 @@
   <table id="schedTable"><thead><tr><th>Hour</th><th>WBGT °C</th><th>Tier</th><th>Work / Rest</th><th>Water</th><th>Action</th></tr></thead><tbody></tbody></table>
 </section>
 
+<section class="card" id="demoCard">
+  <h2>🎬 Jury demo — simulated week <span class="tier t-black">SIMULATED DUMMY DATA</span></h2>
+  <p class="muted">One week in July, Abu Dhabi: 3 fictional crews, 54 fictional workers. Synthetic weather run through the same engine as live mode — no real workers, measurements or outcomes. <button id="demoBtn">Load simulated week</button></p>
+  <div id="demoBody"></div>
+</section>
+
 <footer class="muted">
   Standards: Stull (2011) wet-bulb · ISO 7243 WBGT · OSHA/ACGIH continuous-work limits.
   HeatShield gives environmental risk guidance only — it does not diagnose or assess any individual. Emergency symptoms (confusion, collapse, hot dry skin) = call emergency services immediately.
 </footer>
 
 <script src="heat.js"></script>
+<script src="demo.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

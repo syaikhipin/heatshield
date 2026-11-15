@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeatShield — Climate-Resilient Worker Health</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>🛡️ HeatShield</h1>
+  <p class="tag">From signals to solutions: live heat-risk early warning for outdoor workers — Future Health Challenge, Challenge 7 (Climate-Resilient Worker Health)</p>
+</header>
+
+<section class="controls card">
+  <label>Work site
+    <select id="site">
+      <option value="24.4539,54.3773">Abu Dhabi — Corniche / city</option>
+      <option value="24.2992,54.6973">Abu Dhabi — Mussafah industrial</option>
+      <option value="24.2075,55.7447">Al Ain</option>
+      <option value="25.2048,55.2708">Dubai — Jebel Ali</option>
+      <option value="25.3463,55.4209">Sharjah industrial</option>
+    </select>
+  </label>
+  <label>Workload
+    <select id="workload">
+      <option value="light">Light (inspection, driving)</option>
+      <option value="moderate" selected>Moderate (building, carrying moderate loads)</option>
+      <option value="heavy">Heavy (manual digging, roofing)</option>
+      <option value="very_heavy">Very heavy (intense shovelling)</option>
+    </select>
+  </label>
+  <label>Crew
+    <select id="accl">
+      <option value="true" selected>Acclimatised (7+ days on site)</option>
+      <option value="false">New / returning (&lt;7 days)</option>
+    </select>
+  </label>
+  <button id="refresh">↻ Load live forecast</button>
+  <button id="simulate">🌡️ Simulate peak-summer day</button>
+  <span id="status" class="muted"></span>
+</section>
+
+<section class="grid">
+  <div class="card" id="nowCard">
+    <h2>Right now (next forecast hour)</h2>
+    <div id="nowBody" class="muted">Load a forecast to see live risk.</div>
+  </div>
+  <div class="card">
+    <h2>Worker alert</h2>
+    <div id="alertBody" class="muted">—</div>
+    <button id="langToggle">عربي / English</button>
+    <div class="compliance">
+      <button id="ackBtn">✓ Crew acknowledged &amp; rest taken</button>
+      <button id="missBtn">✗ Rest missed</button>
+      <p id="complianceBody" class="muted"></p>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>48-hour WBGT estimate</h2>
+  <canvas id="chart" width="960" height="260"></canvas>
+  <p class="muted">WBGT is a planning estimate from forecast data (Stull wet-bulb + ISO 7243 weighting, globe temperature estimated from solar radiation). An on-site WBGT instrument always overrides it.</p>
+</section>
+
+<section class="card">
+  <h2>Tomorrow's shift schedule (06:00–18:00)</h2>
+  <table id="schedTable"><thead><tr><th>Hour</th><th>WBGT °C</th><th>Tier</th><th>Work / Rest</th><th>Water</th><th>Action</th></tr></thead><tbody></tbody></table>
+</section>
+
+<footer class="muted">
+  Standards: Stull (2011) wet-bulb · ISO 7243 WBGT · OSHA/ACGIH continuous-work limits.
+  HeatShield gives environmental risk guidance only — it does not diagnose or assess any individual. Emergency symptoms (confusion, collapse, hot dry skin) = call emergency services immediately.
+</footer>
+
+<script src="heat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

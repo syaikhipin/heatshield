@@ -83,16 +83,32 @@ Compliance log (on-device only) -> one-rule early-alert adaptation
   strictly more protective thresholds; alerts are bilingual EN/AR at
   scaffold stage, with Urdu/Hindi/Bengali on the roadmap.
 
-## Evaluation plan (what we will report by submission)
+## Evaluation
 
 1. Engine correctness: unit tests vs published Stull values (done,
    `test_heat.mjs`).
-2. Backtest: Open-Meteo archive, one July 2026 week, 5 sites — hours
-   per risk tier, peak WBGT timing vs typical shift patterns.
-3. Forecast skill: forecast WBGT vs archive ("actual") WBGT for the
-   same hours — mean absolute error.
+2. **Backtest (done 16 Nov 2026, full report in `BACKTEST.md`,
+   script `backtest.mjs`):** all of July 2026, hourly, 5 sites —
+   3,720 site-hours of ERA5 reanalysis run through the product's
+   own engine. Peak WBGT 34.3–36.3 °C by site (humid coast highest,
+   dry inland Al Ain lowest — air temperature alone ranks the risk
+   backwards). 45% of shift hours (06:00–18:00) were RED or STOP
+   for a moderate acclimatised crew; 81% were STOP for heavy work
+   by unacclimatised crews; every 12:00–15:00 hour (465/465) was
+   STOP-tier for heavy unacclimatised work — the statutory midday
+   break is necessary but not sufficient.
+3. **Forecast skill (same backtest):** archived ECMWF IFS forecasts
+   vs ERA5 for the same hours — WBGT mean absolute error
+   **0.45 °C**, bias **−0.26 °C** (forecasts slightly
+   under-predict; the unsafe direction, hence the conservative
+   tier bands and instrument-override rule); work/rest tier exact
+   in 81.7% of hours, within one tier in 99.8%. Forecast error is
+   the smaller part of the ±2 °C planning uncertainty above; the
+   globe-temperature estimate is the larger part and is not
+   measured by this comparison (both weather products are ECMWF;
+   ground-instrument validation is future work).
 4. Usability: supervisor task test (produce tomorrow's schedule for a
-   heavy unacclimatised crew) — time and correctness.
+   heavy unacclimatised crew) — time and correctness. (Not yet run.)
 5. Intended pilot metrics (post-challenge): rest compliance rate,
    alert-to-rest latency, heat-illness incidents, equity across crew
    categories.

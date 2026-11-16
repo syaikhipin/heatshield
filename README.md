@@ -8,6 +8,7 @@ Prototype due 20 Nov 2026. Team: Julio (Nur Arifin Akbar) — scaffold v0.1, 15 
 - **Live product:** https://syaikhipin.github.io/heatshield/ (no login, no install — try the "Simulate peak-summer day" button and the "Jury demo — simulated week" section at the bottom)
 - **Demo video (1:56, voiceover):** embedded on the live page, and as a release asset: https://github.com/syaikhipin/heatshield/releases/tag/v0.1
 - **Technical documentation, assumptions & limitations:** [SUBMISSION.md](SUBMISSION.md)
+- **Real-data backtest:** [BACKTEST.md](BACKTEST.md) — July 2026, 3,720 site-hours (ERA5 vs archived ECMWF IFS forecasts through the same engine): forecast WBGT MAE 0.45 °C, tier within one in 99.8% of hours; 81% of shift hours were STOP-tier for heavy work by unacclimatised crews.
 
 Live heat-risk early warning for outdoor workers in the Gulf: it turns a
 public weather forecast into an auditable WBGT risk tier, a work/rest/

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<style>
+@page { size: 13.33in 7.5in; margin: 0; }
+* { box-sizing: border-box; margin: 0; }
+body { font-family: 'DejaVu Sans', system-ui, sans-serif; color: #111827; }
+.slide { width: 13.33in; height: 7.5in; padding: 0.7in 0.9in; page-break-after: always; position: relative; overflow: hidden; }
+.dark { background: #0f172a; color: #fff; }
+h1 { font-size: 64px; line-height: 1.05; }
+h2 { font-size: 40px; margin-bottom: 24px; color: #b91c1c; }
+.dark h2 { color: #fca5a5; }
+p, li { font-size: 22px; line-height: 1.5; }
+ul { margin-left: 28px; }
+.small { font-size: 17px; color: #6b7280; }
+.dark .small { color: #cbd5e1; }
+.tag { display: inline-block; background: #b91c1c; color: #fff; padding: 6px 16px; border-radius: 999px; font-size: 18px; font-weight: 700; }
+.tier { font-weight: 800; padding: 2px 12px; border-radius: 999px; color: #fff; }
+.g { background: #16a34a; } .a { background: #d97706; } .r { background: #dc2626; } .b { background: #111827; }
+img.shot { width: 100%; max-height: 4.5in; object-fit: cover; object-position: top; border-radius: 10px; border: 1px solid #e5e7eb; }
+img.shot-sm { max-height: 3.1in; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+.kpirow { display: flex; gap: 18px; margin: 22px 0; }
+.kpi { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 20px; }
+.kpi .v { font-size: 38px; font-weight: 800; }
+.foot { position: absolute; bottom: 0.45in; left: 0.9in; right: 0.9in; font-size: 15px; color: #9ca3af; display: flex; justify-content: space-between; }
+a { color: #2563eb; }
+</style></head><body>
+
+<section class="slide dark">
+  <span class="tag">Future Health Digital Innovation Challenge · Challenge 7</span>
+  <h1 style="margin-top:36px">🛡️ HeatShield</h1>
+  <p style="font-size:30px;margin-top:18px">Climate-Resilient Worker Health — from signals to solutions</p>
+  <p style="margin-top:52px">Team name: <b>Kabut Asap</b> &nbsp;·&nbsp; Team size: <b>1</b></p>
+  <p>Nur Arifin Akbar — PhD researcher, University of Palermo</p>
+  <p style="margin-top:30px" class="small">Problem statement: Outdoor workers in the Gulf face extreme summer heat, but protection depends on supervisors manually translating a weather forecast into work, rest and hydration decisions — usually from air temperature alone, which understates the risk.</p>
+  <div class="foot"><span>Live: syaikhipin.github.io/heatshield</span><span>1 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>The problem</h2>
+  <ul>
+    <li>Heat illness is <b>preventable</b> — yet it keeps injuring construction, delivery, agriculture and municipal workers across the Gulf every summer.</li>
+    <li>Air temperature <b>understates</b> risk: it ignores humidity, solar radiation and wind. The occupational standard is <b>WBGT</b>.</li>
+    <li>Today the translation forecast → work/rest/water is manual, inconsistent, and rarely per-crew.</li>
+    <li>New and returning (unacclimatised) workers — often migrants — are at <b>highest risk</b> and get the least tailored protection.</li>
+  </ul>
+  <p style="margin-top:26px">The gap is not sensing. The gap is the <b>decision</b> — and proof the decision was followed.</p>
+  <div class="foot"><span>HeatShield</span><span>2 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>The solution</h2>
+  <p>HeatShield turns a <b>live forecast</b> into an <b>auditable heat-risk decision</b>, per site, per crew:</p>
+  <ul style="margin-top:18px">
+    <li><b>Supervisor dashboard</b> — current WBGT estimate + tier, 48-hour chart, tomorrow's full shift schedule.</li>
+    <li><b>Worker alert</b> — one plain sentence, English / Arabic: work minutes, rest minutes, water.</li>
+    <li><b>Compliance adaptation</b> — rests are logged; if a crew keeps missing them, its alerts fire one tier earlier. One transparent rule, no black box.</li>
+    <li><b>No personal health data</b> is collected, ever. Browser-only; no account, no install.</li>
+  </ul>
+  <div class="foot"><span>HeatShield</span><span>3 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>How it works — published science, not vibes</h2>
+  <ul>
+    <li><b>Wet-bulb:</b> Stull (2011) approximation, J. Applied Meteorology &amp; Climatology — unit-tested against published worked examples.</li>
+    <li><b>WBGT:</b> ISO 7243 outdoor weighting (0.7 wet-bulb / 0.2 globe / 0.1 air); globe temperature estimated from solar radiation + wind, labelled an estimate.</li>
+    <li><b>Work/rest:</b> OSHA / ACGIH continuous-work WBGT limits by workload and acclimatisation → 45/15, 30/30, 15/45, or <span class="tier b">STOP</span>.</li>
+    <li><b>Data:</b> Open-Meteo live forecast (free, no key) for five Gulf sites.</li>
+  </ul>
+  <p style="margin-top:22px">Risk tiers: <span class="tier g">GREEN</span> <span class="tier a">AMBER</span> <span class="tier r">RED</span> <span class="tier b">BLACK = STOP WORK</span></p>
+  <div class="foot"><span>HeatShield</span><span>4 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>Live product — real forecast, real decision</h2>
+  <img class="shot" src="../video/captures/01-live-viewport.png">
+  <p class="small" style="margin-top:12px">Live capture, 15 Nov 2026: Abu Dhabi, WBGT 22.2 °C, GREEN. In the peak-summer simulation the same dashboard escalates to BLACK / STOP at 39.4 °C.</p>
+  <div class="foot"><span>syaikhipin.github.io/heatshield</span><span>5 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>Jury demo — simulated week (dummy data)</h2>
+  <img class="shot shot-sm" src="../video/captures/05-demo-viewport.png">
+  <div class="kpirow">
+    <div class="kpi"><div class="v">378</div>worker-days (simulated)</div>
+    <div class="kpi"><div class="v">41.1 °C</div>peak WBGT (simulated)</div>
+    <div class="kpi"><div class="v">247</div>crew-hours at RED / STOP</div>
+    <div class="kpi"><div class="v">83%</div>avg rest compliance</div>
+  </div>
+  <p class="small">Synthetic July weather for 3 fictional crews, run through the same engine as live mode — permanently labelled SIMULATED DUMMY DATA in the product. Crew Charlie (new, unacclimatised) falls to 58% compliance and is flagged: early-alert adaptation ON.</p>
+  <div class="foot"><span>HeatShield</span><span>6 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>Evidence — July 2026 backtest (real data)</h2>
+  <div class="kpirow">
+    <div class="kpi"><div class="v">3,720</div>site-hours analysed</div>
+    <div class="kpi"><div class="v">0.45 °C</div>forecast WBGT error (MAE)</div>
+    <div class="kpi"><div class="v">99.8%</div>forecast hours within one tier</div>
+    <div class="kpi"><div class="v">465 / 465</div>midday hours at STOP*</div>
+  </div>
+  <ul>
+    <li><b>Method:</b> ERA5 reanalysis vs archived ECMWF IFS forecasts for the same hours, both run through the product's own engine — all of July 2026, all five sites.</li>
+    <li><b>Exposure:</b> 45% of shift hours (06:00–18:00) were RED or STOP for a moderate acclimatised crew; <b>81% were STOP</b> for heavy work by new, unacclimatised crews.</li>
+    <li><b>Honest bias:</b> forecasts under-predict WBGT slightly (−0.26 °C) — the unsafe direction; hence the conservative tier bands and the rule that an on-site instrument always overrides.</li>
+  </ul>
+  <p class="small" style="margin-top:16px">*Every 12:00–15:00 hour in July 2026 was STOP-tier for heavy unacclimatised work — the statutory midday break is necessary, not sufficient. Full method, per-site table and caveats: BACKTEST.md in the repository.</p>
+  <div class="foot"><span>HeatShield</span><span>7 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>Impact and who it serves</h2>
+  <ul>
+    <li><b>Workers:</b> protection that arrives <i>before</i> the shift, in their language, matched to their acclimatisation.</li>
+    <li><b>Supervisors:</b> a defensible, standards-based schedule in seconds — and a compliance record.</li>
+    <li><b>Employers / regulators:</b> auditable decisions aligned with the UAE's statutory midday break, extendable hour-by-hour per crew.</li>
+    <li><b>Equity:</b> the least-protected group (new migrant workers) gets the strictest thresholds by design.</li>
+  </ul>
+  <div class="foot"><span>HeatShield</span><span>8 / 10</span></div>
+</section>
+
+<section class="slide">
+  <h2>Assumptions, limitations, safety</h2>
+  <ul>
+    <li><b>Planning tool, not a measurement device.</b> An on-site WBGT instrument always overrides HeatShield. Estimated-WBGT uncertainty ≈ ±2 °C (globe-temperature estimate + forecast error).</li>
+    <li>Forecast values are assumed to represent site conditions; rooftops and enclosed yards can be hotter.</li>
+    <li>Workload and acclimatisation are supervisor-selected categories — <b>no individual physiological assessment, no diagnosis, no medical advice</b>.</li>
+    <li>Human oversight: the supervisor may tighten the schedule, never loosen it. Emergency symptoms follow site emergency procedure.</li>
+  </ul>
+  <div class="foot"><span>Full text: SUBMISSION.md in the repository</span><span>9 / 10</span></div>
+</section>
+
+<section class="slide dark">
+  <h2>Roadmap and ask</h2>
+  <ul>
+    <li><b>Done since first submission:</b> real-data backtest on July 2026 archive weather (slide 7). <b>Next:</b> Urdu / Hindi / Bengali alerts; WhatsApp delivery; on-site WBGT sensor ingestion for ground-truth validation.</li>
+    <li><b>Pilot path:</b> per-site SaaS for construction and facilities contractors in the Gulf — the auditable, dependency-free engine is the procurement-friendly core.</li>
+    <li><b>Try it now:</b> https://syaikhipin.github.io/heatshield/</li>
+    <li><b>Video (1:56):</b> embedded on the live page · <b>Code:</b> github.com/syaikhipin/heatshield</li>
+  </ul>
+  <p style="margin-top:34px;font-size:28px">From signals to solutions — no crew should face a Gulf summer armed with nothing but a thermometer.</p>
+  <div class="foot"><span>Team Kabut Asap · Nur Arifin Akbar</span><span>10 / 10</span></div>
+</section>
+
+</body></html>

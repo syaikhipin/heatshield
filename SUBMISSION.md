@@ -13,6 +13,34 @@ weather forecast into work/rest/hydration decisions — a step that is
 manual, inconsistent, and usually based on air temperature alone,
 which understates risk because it ignores humidity, sun and wind.
 
+## v2 additions (19 Nov 2026, in response to reviewer feedback)
+
+1. **Real-time weather inputs, foregrounded.** The product no longer
+   presents a fixed set of sites as its face: users can search any
+   place (Open-Meteo geocoding), use browser geolocation, enter raw
+   coordinates, or type a manual / on-site sensor reading (air temp,
+   humidity, wind, solar) and get an instant WBGT assessment. Every
+   load shows a LIVE badge with place, coordinates, timezone and
+   fetch time. The earlier simulated week is archived at the bottom
+   of the page, collapsed, and labelled fictional.
+2. **HeatSafe Companion** — a worker-facing module. Consent-first:
+   no check-in is stored unless the worker ticks consent; storage is
+   localStorage on that device only, never transmitted, and a
+   one-click "Delete my data" wipes it. It applies stricter
+   unacclimatised thresholds in the first week, gives a personal
+   cooling alert (next break, water, shade), and escalates symptom
+   reports — confusion / collapse / hot dry skin triggers a STOP +
+   supervisor + emergency-procedure message. Guidance only, no
+   diagnosis, no individual health data leaves the device.
+3. **Smart Break Planner** — from tomorrow's live forecast and a
+   chosen shift window / crew size: hour-by-hour work/rest/water,
+   total water for the whole crew, productive vs rest minutes, STOP
+   hours, and the coolest hours to move heavy tasks into.
+4. **Safe-Shift Simulator** — what-if comparison layered on the live
+   forecast (not synthetic data): two start times × a +0–3 °C hotter
+   delta, compared on STOP hours, RED+ hours, productive minutes,
+   water per worker and peak WBGT.
+
 ## Solution and architecture
 
 Browser-only prototype, no backend:

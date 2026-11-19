@@ -23,22 +23,30 @@ function logCompliance(ok) {
   render();
 }
 
-async function loadForecast() {
-  const [lat, lon] = $("site").value.split(",");
-  $("status").textContent = "Fetching live forecast from Open-Meteo…";
+let livePlace = "Abu Dhabi — Corniche / city";
+async function loadForecast(latIn, lonIn, label) {
+  let lat, lon;
+  if (latIn !== undefined && lonIn !== undefined) { lat = latIn; lon = lonIn; if (label) livePlace = label; }
+  else { [lat, lon] = $("site").value.split(","); livePlace = $("site").selectedOptions[0].textContent; }
+  $("status").textContent = "Fetching LIVE forecast from Open-Meteo…";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-    `&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation&forecast_days=3&timezone=Asia%2FDubai`;
+    `&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation&forecast_days=3&timezone=auto`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Open-Meteo " + res.status);
   const j = await res.json();
   const h = j.hourly;
   hourlyData = h.time.map((t, i) => {
     const r = HeatEngine.wbgtOutdoor(h.temperature_2m[i], h.relative_humidity_2m[i], h.shortwave_radiation[i], h.wind_speed_10m[i]);
-    return { time: new Date(t), temp: h.temperature_2m[i], rh: h.relative_humidity_2m[i], wind: h.wind_speed_10m[i], solar: h.shortwave_radiation[i], ...r };
+    return { time: new Date(t + (j.timezone_abbreviation ? "" : "")), temp: h.temperature_2m[i], rh: h.relative_humidity_2m[i], wind: h.wind_speed_10m[i], solar: h.shortwave_radiation[i], ...r };
   });
-  $("status").textContent = `Live forecast loaded (${hourlyData.length} hours, Open-Meteo, Asia/Dubai).`;
+  const fetched = new Date();
+  $("status").textContent = `LIVE forecast loaded (${hourlyData.length} hours) for ${livePlace}.`;
+  const badge = $("liveBadge"); if (badge) badge.textContent = `● LIVE — ${livePlace} · fetched ${fetched.toLocaleTimeString()} · real-time Open-Meteo data`;
+  const meta = $("liveMeta"); if (meta) meta.innerHTML = `Source: <b>Open-Meteo live forecast API</b> (no key) · Location: <b>${livePlace}</b> (${Number(lat).toFixed(4)}, ${Number(lon).toFixed(4)}) · Timezone: ${j.timezone} · Fetched: ${fetched.toLocaleString()} · ${hourlyData.length} hourly values (temp, humidity, wind, solar) run through the WBGT engine below.`;
   render();
+  if (window.HeatModules) window.HeatModules.onLiveData();
 }
+window.HeatShieldApp = { getData: () => hourlyData, getPlace: () => livePlace, loadForecast, assessCurrent: () => hourlyData.length ? assess(hourlyData[Math.max(0, hourlyData.findIndex((d) => d.time > new Date()) - 1)]) : null, currentSettings };
 
 function currentSettings() {
   return { workload: $("workload").value, accl: $("accl").value === "true" };
@@ -124,9 +132,45 @@ function simulateSummerDay() {
     const r = HeatEngine.wbgtOutdoor(temp, rh, solar, wind);
     hourlyData.push({ time: t, temp, rh, wind, solar, ...r });
   }
-  $("status").textContent = "SIMULATION: synthetic peak-summer day (44°C peak) — not live weather.";
+  $("status").textContent = "SCENARIO: synthetic peak-summer day (44°C peak) — not live weather. Reload the live forecast to return to real-time data.";
+  const badge = $("liveBadge"); if (badge) badge.textContent = "● SCENARIO MODE — peak-summer simulation (press “Reload live forecast” for real-time data)";
   render();
+  if (window.HeatModules) window.HeatModules.onLiveData();
 }
+// --- Real-time input handlers: search, coordinates, geolocation, manual ---
+$("coordBtn").onclick = () => {
+  const lat = parseFloat($("latIn").value), lon = parseFloat($("lonIn").value);
+  if (isNaN(lat) || isNaN(lon)) { $("status").textContent = "Enter valid latitude and longitude first."; return; }
+  loadForecast(lat, lon, `Custom coordinates ${lat.toFixed(4)}, ${lon.toFixed(4)}`).catch((e) => { $("status").textContent = "Failed: " + e.message; });
+};
+$("geoBtn").onclick = () => {
+  if (!navigator.geolocation) { $("status").textContent = "Geolocation is not available in this browser."; return; }
+  $("status").textContent = "Requesting your location (browser permission)…";
+  navigator.geolocation.getCurrentPosition(
+    (p) => loadForecast(p.coords.latitude, p.coords.longitude, "My location").catch((e) => { $("status").textContent = "Failed: " + e.message; }),
+    (e) => { $("status").textContent = "Location not shared: " + e.message; },
+    { timeout: 10000 }
+  );
+};
+$("searchBtn").onclick = async () => {
+  const q = $("placeSearch").value.trim();
+  if (!q) return;
+  $("searchResults").textContent = "Searching Open-Meteo geocoding…";
+  try {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`);
+    const j = await r.json();
+    if (!j.results || !j.results.length) { $("searchResults").textContent = `No place found for “${q}”.`; return; }
+    $("searchResults").innerHTML = j.results.map((x, i) => `<button type="button" class="placeBtn" data-lat="${x.latitude}" data-lon="${x.longitude}" data-name="${x.name}, ${x.country || ""}">${x.name} — ${x.admin1 || ""} ${x.country || ""} (${x.latitude.toFixed(2)}, ${x.longitude.toFixed(2)})</button>`).join(" ");
+    document.querySelectorAll(".placeBtn").forEach((b) => b.onclick = () => loadForecast(parseFloat(b.dataset.lat), parseFloat(b.dataset.lon), b.dataset.name).catch((e) => { $("status").textContent = "Failed: " + e.message; }));
+  } catch (e) { $("searchResults").textContent = "Search failed: " + e.message; }
+};
+$("manualBtn").onclick = () => {
+  const temp = parseFloat($("mTemp").value), rh = parseFloat($("mRh").value), wind = parseFloat($("mWind").value), solar = parseFloat($("mSolar").value);
+  const r = HeatEngine.wbgtOutdoor(temp, rh, solar, wind);
+  const { workload, accl } = currentSettings();
+  const a = HeatEngine.workRest(r.wbgt, workload, accl);
+  $("manualBody").innerHTML = `<span class="big">${r.wbgt.toFixed(1)}°C</span> WBGT from <b>your reading</b> (air ${temp}°C, RH ${rh}%, wind ${wind} km/h, solar ${solar} W/m²) &nbsp;<span class="tier t-${a.tier}">${a.tier.toUpperCase()}</span><p><b>${a.workMin} min work / ${a.restMin} min rest</b> per hour · Water ${a.waterLph} L/h per worker — ${a.action}</p>`;
+};
 $("simulate").onclick = simulateSummerDay;
 function renderDemo() {
   const w = HeatDemo.generateDemoWeek(HeatEngine);

@@ -65,9 +65,9 @@ function planBreaks() {
     `<div class="kpi"><div class="big">${restMin} min</div><div class="muted">shade rest in shift</div></div>` +
     `<div class="kpi"><div class="big">${stopH}</div><div class="muted">STOP hours in shift</div></div></div>` +
     `<p><b>Move heavy tasks to the coolest hours:</b> ${coolest.join(", ")} (lowest live-forecast WBGT). Keep the statutory midday break and tighten — never loosen — this plan on site.</p>` +
-    `<table><thead><tr><th>Hour</th><th>WBGT °C</th><th>Tier</th><th>Work / Rest</th><th>Water / worker</th><th>Guidance</th></tr></thead><tbody>` +
+    `<div class="tablewrap"><table><thead><tr><th>Hour</th><th>WBGT °C</th><th>Tier</th><th>Work / Rest</th><th>Water / worker</th><th>Guidance</th></tr></thead><tbody>` +
     rows.map((r) => `<tr><td>${String(r.d.time.getHours()).padStart(2, "0")}:00</td><td>${r.d.wbgt.toFixed(1)}</td><td><span class="tier t-${r.a.tier}">${r.a.tier}</span></td><td>${r.a.workMin} / ${r.a.restMin}</td><td>${r.a.waterLph} L/h</td><td>${r.a.action}</td></tr>`).join("") +
-    `</tbody></table>`;
+    `</tbody></table></div>`;
 }
 
 // ---------- Safe-Shift Simulator (on live forecast) ----------
@@ -98,10 +98,40 @@ function compareShifts() {
   const row = (label, x) => `<tr><td><b>${label}</b></td><td>${x.stop}</td><td>${x.redPlus}</td><td>${x.workMin} min</td><td>${x.water.toFixed(1)} L</td><td>${x.peak.toFixed(1)}°C</td></tr>`;
   $$("simBody").innerHTML =
     `<p>Tomorrow, live forecast${delta ? ` + ${delta.toFixed(1)}°C hotter` : ""}, ${len}h shifts: <b>${safer === "tie" ? "both options are equivalent on STOP hours and productive minutes" : `Option ${safer} is safer / more productive`}</b> on the measures below.</p>` +
-    `<table><thead><tr><th>Option</th><th>STOP hours</th><th>RED+ hours</th><th>Productive work</th><th>Water / worker</th><th>Peak WBGT</th></tr></thead><tbody>` +
+    `<div class="tablewrap"><table><thead><tr><th>Option</th><th>STOP hours</th><th>RED+ hours</th><th>Productive work</th><th>Water / worker</th><th>Peak WBGT</th></tr></thead><tbody>` +
     row(`A — start ${$$("sStartA").value}:00`, A) + row(`B — start ${$$("sStartB").value}:00`, B) +
-    `</tbody></table><p class="muted">Simulation layered on real forecast values — change the location above and the comparison changes with the live weather.</p>`;
+    `</tbody></table></div><p class="muted">Simulation layered on real forecast values — change the location above and the comparison changes with the live weather.</p>`;
 }
+
+// ---------- Interactivity: instant recompute, sliders, countdown, nav ----------
+function manualAssess() { const b = $$("manualBtn"); if (b) b.click(); }
+[["mTemp", "mTempR"], ["mRh", "mRhR"], ["mWind", "mWindR"], ["mSolar", "mSolarR"]].forEach(([num, range]) => {
+  const n = $$(num), r = $$(range);
+  if (!n || !r) return;
+  r.addEventListener("input", () => { n.value = r.value; manualAssess(); });
+  n.addEventListener("input", () => { r.value = n.value; manualAssess(); });
+});
+["pStart", "pEnd", "pCrew"].forEach((id) => { const el = $$(id); if (el) el.addEventListener("change", planBreaks); });
+["sStartA", "sStartB", "sLen", "sDelta"].forEach((id) => { const el = $$(id); if (el) el.addEventListener("change", compareShifts); });
+let timerInt = null;
+$$("cTimerBtn").onclick = () => {
+  if (timerInt) { clearInterval(timerInt); timerInt = null; $$("timerBody").textContent = "Countdown stopped."; return; }
+  let secs = Math.max(0, parseInt($$("cBreak").value || "30", 10)) * 60;
+  $$("timerBody").innerHTML = `⏱️ Break in <b>${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}</b> — keep drinking water. Tap again to stop.`;
+  timerInt = setInterval(() => {
+    secs -= 1;
+    if (secs <= 0) { clearInterval(timerInt); timerInt = null; $$("timerBody").innerHTML = `<span class="tier t-amber">BREAK TIME</span> Move to shade now, rest and drink — your next work block starts after your scheduled rest.`; return; }
+    $$("timerBody").innerHTML = `⏱️ Break in <b>${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}</b> — keep drinking water. Tap again to stop.`;
+  }, 1000);
+};
+// Sticky nav: highlight the section in view.
+const navTabs = [...document.querySelectorAll("#tabNav .tab")];
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) navTabs.forEach((t) => t.classList.toggle("active", t.getAttribute("href") === "#" + en.target.id));
+  });
+}, { rootMargin: "-30% 0px -60% 0px" });
+["liveCard", "nowCard", "companionCard", "plannerCard", "simCard"].forEach((id) => { const el = $$(id); if (el) obs.observe(el); });
 
 $$("cCheckBtn").onclick = companionAlert;
 $$("cDeleteBtn").onclick = () => { localStorage.removeItem(COMP_KEY); $$("companionBody").textContent = "All companion check-ins deleted from this device."; };

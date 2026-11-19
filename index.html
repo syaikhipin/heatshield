@@ -10,10 +10,18 @@
 <header>
   <h1>🛡️ HeatShield</h1>
   <p class="tag">From signals to solutions: live heat-risk early warning for outdoor workers — Future Health Challenge, Challenge 7 (Climate-Resilient Worker Health)</p>
-  <p><span class="livebadge" id="liveBadge">● LIVE — loading real-time forecast…</span></p>
+  <p><span class="livebadge" id="liveBadge">● LIVE — loading real-time forecast…</span> <span class="muted" id="autoRefresh" style="color:#cbd5e1"></span></p>
 </header>
 
-<section class="card">
+<nav class="tabnav" id="tabNav">
+  <a href="#liveCard" class="tab active">🌍 Live weather</a>
+  <a href="#nowCard" class="tab">📊 Dashboard</a>
+  <a href="#companionCard" class="tab">🧑‍🏭 Companion</a>
+  <a href="#plannerCard" class="tab">🗓️ Break Planner</a>
+  <a href="#simCard" class="tab">🧪 Shift Simulator</a>
+</nav>
+
+<section class="card" id="liveCard">
   <h2>🌍 Real-time weather input</h2>
   <p class="muted">HeatShield runs on <b>live weather, not dummy data</b>. Pick a site, search any place on Earth, use your own location, enter coordinates, or type in a reading from an on-site sensor — the WBGT engine recomputes instantly from those inputs.</p>
   <div class="controls">
@@ -38,12 +46,13 @@
   <details style="margin-top:12px">
     <summary><b>Manual / on-site sensor input</b> — enter a real reading and assess it now</summary>
     <div class="controls" style="margin-top:10px">
-      <label>Air temp °C <input id="mTemp" type="number" step="0.1" value="38"></label>
-      <label>Humidity % <input id="mRh" type="number" step="1" value="55"></label>
-      <label>Wind km/h <input id="mWind" type="number" step="1" value="10"></label>
-      <label>Solar W/m² <input id="mSolar" type="number" step="10" value="800"></label>
+      <label>Air temp °C <input id="mTemp" type="number" step="0.1" value="38"><input id="mTempR" type="range" min="15" max="50" step="0.5" value="38"></label>
+      <label>Humidity % <input id="mRh" type="number" step="1" value="55"><input id="mRhR" type="range" min="5" max="99" step="1" value="55"></label>
+      <label>Wind km/h <input id="mWind" type="number" step="1" value="10"><input id="mWindR" type="range" min="0" max="60" step="1" value="10"></label>
+      <label>Solar W/m² <input id="mSolar" type="number" step="10" value="800"><input id="mSolarR" type="range" min="0" max="1100" step="20" value="800"></label>
       <button id="manualBtn" type="button">Assess this reading</button>
     </div>
+    <p class="muted">Drag the sliders — the assessment updates instantly, no button needed.</p>
     <div id="manualBody" class="muted">No manual reading assessed yet.</div>
   </details>
   <p id="liveMeta" class="muted">Source: Open-Meteo live forecast API (ECMWF IFS / ICON, no key). Fetched time and coordinates are shown here after every load.</p>
@@ -89,12 +98,14 @@
 <section class="card">
   <h2>48-hour WBGT estimate — from the live forecast above</h2>
   <canvas id="chart" width="960" height="260"></canvas>
+  <div id="chartDetail" class="muted">👆 Tap or move across the chart to inspect any hour.</div>
   <p class="muted">WBGT is a planning estimate from forecast data (Stull wet-bulb + ISO 7243 weighting, globe temperature estimated from solar radiation). An on-site WBGT instrument always overrides it.</p>
 </section>
 
 <section class="card">
   <h2>Tomorrow's shift schedule (06:00–18:00)</h2>
-  <table id="schedTable"><thead><tr><th>Hour</th><th>WBGT °C</th><th>Tier</th><th>Work / Rest</th><th>Water</th><th>Action</th></tr></thead><tbody></tbody></table>
+  <div class="tablewrap"><table id="schedTable"><thead><tr><th>Hour</th><th>WBGT °C</th><th>Tier</th><th>Work / Rest</th><th>Water</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+  <div id="schedDetail" class="muted">Tap a row for the full guidance for that hour.</div>
 </section>
 
 <section class="card" id="companionCard">
@@ -114,8 +125,10 @@
   <label><input type="checkbox" class="cSym" value="redflag"> Confusion, collapse, or hot dry skin <b>(emergency sign)</b></label>
   <div style="margin-top:10px">
     <button id="cCheckBtn" type="button">Get my cooling alert</button>
+    <button id="cTimerBtn" type="button">⏱️ Start break countdown</button>
     <button id="cDeleteBtn" type="button">Delete my data</button>
   </div>
+  <div id="timerBody" class="muted" style="margin-top:6px"></div>
   <div id="companionBody" class="muted" style="margin-top:10px">No check-in yet.</div>
 </section>
 

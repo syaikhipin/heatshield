@@ -10,24 +10,46 @@
 <header>
   <h1>🛡️ HeatShield</h1>
   <p class="tag">From signals to solutions: live heat-risk early warning for outdoor workers — Future Health Challenge, Challenge 7 (Climate-Resilient Worker Health)</p>
+  <p><span class="livebadge" id="liveBadge">● LIVE — loading real-time forecast…</span></p>
 </header>
 
 <section class="card">
-  <h2>🎬 Demo video (1:56, with voiceover)</h2>
-  <video controls preload="metadata" style="width:100%;border-radius:8px" src="heatshield-demo.mp4"></video>
-  <p class="muted">Live product: this page · Code &amp; docs: <a href="https://github.com/syaikhipin/heatshield">github.com/syaikhipin/heatshield</a> · Submission documentation: <a href="https://github.com/syaikhipin/heatshield/blob/main/SUBMISSION.md">SUBMISSION.md</a></p>
+  <h2>🌍 Real-time weather input</h2>
+  <p class="muted">HeatShield runs on <b>live weather, not dummy data</b>. Pick a site, search any place on Earth, use your own location, enter coordinates, or type in a reading from an on-site sensor — the WBGT engine recomputes instantly from those inputs.</p>
+  <div class="controls">
+    <label>Work site (live forecast)
+      <select id="site">
+        <option value="24.4539,54.3773">Abu Dhabi — Corniche / city</option>
+        <option value="24.2992,54.6973">Abu Dhabi — Mussafah industrial</option>
+        <option value="24.2075,55.7447">Al Ain</option>
+        <option value="25.2048,55.2708">Dubai — Jebel Ali</option>
+        <option value="25.3463,55.4209">Sharjah industrial</option>
+      </select>
+    </label>
+    <label>Search any location
+      <span><input id="placeSearch" type="text" placeholder="e.g. Doha, Riyadh, Karachi" size="22"> <button id="searchBtn" type="button">Search</button></span>
+    </label>
+    <label>Latitude <input id="latIn" type="number" step="0.0001" placeholder="24.4539" size="10"></label>
+    <label>Longitude <input id="lonIn" type="number" step="0.0001" placeholder="54.3773" size="10"></label>
+    <button id="coordBtn" type="button">Load these coordinates</button>
+    <button id="geoBtn" type="button">📍 Use my location</button>
+  </div>
+  <div id="searchResults" class="muted"></div>
+  <details style="margin-top:12px">
+    <summary><b>Manual / on-site sensor input</b> — enter a real reading and assess it now</summary>
+    <div class="controls" style="margin-top:10px">
+      <label>Air temp °C <input id="mTemp" type="number" step="0.1" value="38"></label>
+      <label>Humidity % <input id="mRh" type="number" step="1" value="55"></label>
+      <label>Wind km/h <input id="mWind" type="number" step="1" value="10"></label>
+      <label>Solar W/m² <input id="mSolar" type="number" step="10" value="800"></label>
+      <button id="manualBtn" type="button">Assess this reading</button>
+    </div>
+    <div id="manualBody" class="muted">No manual reading assessed yet.</div>
+  </details>
+  <p id="liveMeta" class="muted">Source: Open-Meteo live forecast API (ECMWF IFS / ICON, no key). Fetched time and coordinates are shown here after every load.</p>
 </section>
 
 <section class="controls card">
-  <label>Work site
-    <select id="site">
-      <option value="24.4539,54.3773">Abu Dhabi — Corniche / city</option>
-      <option value="24.2992,54.6973">Abu Dhabi — Mussafah industrial</option>
-      <option value="24.2075,55.7447">Al Ain</option>
-      <option value="25.2048,55.2708">Dubai — Jebel Ali</option>
-      <option value="25.3463,55.4209">Sharjah industrial</option>
-    </select>
-  </label>
   <label>Workload
     <select id="workload">
       <option value="light">Light (inspection, driving)</option>
@@ -42,8 +64,8 @@
       <option value="false">New / returning (&lt;7 days)</option>
     </select>
   </label>
-  <button id="refresh">↻ Load live forecast</button>
-  <button id="simulate">🌡️ Simulate peak-summer day</button>
+  <button id="refresh">↻ Reload live forecast</button>
+  <button id="simulate">🌡️ Scenario: peak-summer day</button>
   <span id="status" class="muted"></span>
 </section>
 
@@ -65,7 +87,7 @@
 </section>
 
 <section class="card">
-  <h2>48-hour WBGT estimate</h2>
+  <h2>48-hour WBGT estimate — from the live forecast above</h2>
   <canvas id="chart" width="960" height="260"></canvas>
   <p class="muted">WBGT is a planning estimate from forecast data (Stull wet-bulb + ISO 7243 weighting, globe temperature estimated from solar radiation). An on-site WBGT instrument always overrides it.</p>
 </section>
@@ -75,10 +97,65 @@
   <table id="schedTable"><thead><tr><th>Hour</th><th>WBGT °C</th><th>Tier</th><th>Work / Rest</th><th>Water</th><th>Action</th></tr></thead><tbody></tbody></table>
 </section>
 
+<section class="card" id="companionCard">
+  <h2>🧑‍🏭 HeatSafe Companion — for the individual worker</h2>
+  <p class="muted">Your personal cooling companion. <b>Consent first:</b> nothing is stored unless you tick the box. Everything stays <b>on this device only</b> — no account, no server, no sharing — and you can delete it all at any time. This is environmental-risk guidance, not a diagnosis.</p>
+  <label style="display:block;margin:10px 0"><input type="checkbox" id="cConsent"> I consent to storing my check-ins on this device only, for my own heat alerts.</label>
+  <div class="controls">
+    <label>Days on site <input id="cDays" type="number" min="0" value="3" style="width:80px"></label>
+    <label>Water drunk today (L) <input id="cWater" type="number" min="0" step="0.25" value="1" style="width:80px"></label>
+    <label>Minutes until my next scheduled break <input id="cBreak" type="number" min="0" value="30" style="width:80px"></label>
+  </div>
+  <p style="margin:10px 0 4px"><b>How do you feel right now?</b></p>
+  <label><input type="checkbox" class="cSym" value="headache"> Headache</label>
+  <label><input type="checkbox" class="cSym" value="dizziness"> Dizziness</label>
+  <label><input type="checkbox" class="cSym" value="nausea"> Nausea</label>
+  <label><input type="checkbox" class="cSym" value="cramps"> Muscle cramps</label>
+  <label><input type="checkbox" class="cSym" value="redflag"> Confusion, collapse, or hot dry skin <b>(emergency sign)</b></label>
+  <div style="margin-top:10px">
+    <button id="cCheckBtn" type="button">Get my cooling alert</button>
+    <button id="cDeleteBtn" type="button">Delete my data</button>
+  </div>
+  <div id="companionBody" class="muted" style="margin-top:10px">No check-in yet.</div>
+</section>
+
+<section class="card" id="plannerCard">
+  <h2>🗓️ Smart Break Planner</h2>
+  <p class="muted">Turns <b>tomorrow's live forecast</b> into a safer shift: heavy tasks are moved to the coolest hours, breaks follow the WBGT tier hour by hour, and total water for the whole crew is calculated.</p>
+  <div class="controls">
+    <label>Shift start <select id="pStart"><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option></select></label>
+    <label>Shift end <select id="pEnd"><option>14</option><option>15</option><option>16</option><option>17</option><option selected>18</option><option>19</option></select></label>
+    <label>Crew size <input id="pCrew" type="number" min="1" value="20" style="width:80px"></label>
+    <button id="planBtn" type="button">Plan tomorrow's breaks</button>
+  </div>
+  <div id="plannerBody" class="muted" style="margin-top:10px">Load a live forecast, then plan.</div>
+</section>
+
+<section class="card" id="simCard">
+  <h2>🧪 Safe-Shift Simulator</h2>
+  <p class="muted">What-if testing <b>on the live forecast</b> — not dummy data. Compare two start times under a hotter day and see which shift is safer before anyone steps outside.</p>
+  <div class="controls">
+    <label>Option A — start <select id="sStartA"><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
+    <label>Option B — start <select id="sStartB"><option>5</option><option>6</option><option selected>7</option><option>8</option></select></label>
+    <label>Shift length (h) <select id="sLen"><option>8</option><option selected>10</option><option>12</option></select></label>
+    <label>Hotter by (°C) <input id="sDelta" type="range" min="0" max="3" step="0.5" value="0"> <span id="sDeltaVal">+0.0°C</span></label>
+    <button id="simBtn" type="button">Compare shifts</button>
+  </div>
+  <div id="simBody" class="muted" style="margin-top:10px">Load a live forecast, then compare.</div>
+</section>
+
+<section class="card">
+  <h2>🎬 Demo video (1:56, with voiceover)</h2>
+  <video controls preload="metadata" style="width:100%;border-radius:8px" src="heatshield-demo.mp4"></video>
+  <p class="muted">Code &amp; docs: <a href="https://github.com/syaikhipin/heatshield">github.com/syaikhipin/heatshield</a> · Submission documentation: <a href="https://github.com/syaikhipin/heatshield/blob/main/SUBMISSION.md">SUBMISSION.md</a> · Real-data backtest: July 2026, 3,720 site-hours, forecast WBGT MAE 0.45°C</p>
+</section>
+
 <section class="card" id="demoCard">
-  <h2>🎬 Jury demo — simulated week <span class="tier t-black">SIMULATED DUMMY DATA</span></h2>
-  <p class="muted">One week in July, Abu Dhabi: 3 fictional crews, 54 fictional workers. Synthetic weather run through the same engine as live mode — no real workers, measurements or outcomes. <button id="demoBtn">Load simulated week</button></p>
-  <div id="demoBody"></div>
+  <details>
+    <summary><b>Archived jury demo — simulated week (fictional data, for illustration only)</b></summary>
+    <p class="muted" style="margin-top:10px">One week in July, Abu Dhabi: 3 fictional crews, 54 fictional workers. Synthetic weather run through the same engine as live mode — no real workers, measurements or outcomes. The live product above does not depend on this. <button id="demoBtn">Load simulated week</button></p>
+    <div id="demoBody"></div>
+  </details>
 </section>
 
 <footer class="muted">
@@ -89,5 +166,6 @@
 <script src="heat.js"></script>
 <script src="demo.js"></script>
 <script src="app.js"></script>
+<script src="modules.js"></script>
 </body>
 </html>

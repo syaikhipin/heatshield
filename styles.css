@@ -17,3 +17,7 @@ canvas{width:100%;height:auto}
 footer{padding:0 24px 24px}
 .kpis{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.kpi{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;min-width:150px}.kpi .big{font-size:26px}
 #demoBody ul{line-height:1.6;font-size:14px}
+.livebadge{display:inline-block;background:#16a34a;color:#fff;font-weight:700;padding:6px 14px;border-radius:999px;font-size:14px;margin-top:10px}
+input[type=text],input[type=number]{padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;font-size:14px}
+.placeBtn{background:#fff;color:var(--ink);margin:4px 4px 0 0}
+details summary{cursor:pointer}

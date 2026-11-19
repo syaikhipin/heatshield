@@ -24,10 +24,13 @@ function logCompliance(ok) {
 }
 
 let livePlace = "Abu Dhabi — Corniche / city";
+let lastLat = null, lastLon = null;
 async function loadForecast(latIn, lonIn, label) {
   let lat, lon;
   if (latIn !== undefined && lonIn !== undefined) { lat = latIn; lon = lonIn; if (label) livePlace = label; }
+  else if (lastLat !== null) { lat = lastLat; lon = lastLon; }
   else { [lat, lon] = $("site").value.split(","); livePlace = $("site").selectedOptions[0].textContent; }
+  lastLat = lat; lastLon = lon;
   $("status").textContent = "Fetching LIVE forecast from Open-Meteo…";
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
     `&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation&forecast_days=3&timezone=auto`;
@@ -86,8 +89,10 @@ function render() {
   buildSchedule();
 }
 
+let chartGeom = null;
 function drawChart(data) {
   const cv = $("chart"), ctx = cv.getContext("2d");
+  chartGeom = { data, width: cv.width, height: cv.height };
   ctx.clearRect(0, 0, cv.width, cv.height);
   const max = Math.max(38, ...data.map((d) => d.wbgt)) + 2, min = 15;
   const X = (i) => (i / (data.length - 1)) * (cv.width - 50) + 40;
@@ -104,6 +109,21 @@ function drawChart(data) {
   ctx.fillText("WBGT °C", 4, 16);
 }
 
+// Chart inspection: tap / move across the chart to inspect any hour.
+function chartInspect(clientX) {
+  if (!chartGeom) return;
+  const cv = $("chart"), rect = cv.getBoundingClientRect();
+  const x = (clientX - rect.left) * (cv.width / rect.width);
+  const i = Math.round(((x - 40) / (cv.width - 50)) * (chartGeom.data.length - 1));
+  if (i < 0 || i >= chartGeom.data.length) return;
+  const d = chartGeom.data[i], a = assess(d);
+  $("chartDetail").innerHTML = `<b>${d.time.toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" })}</b> — WBGT <b>${d.wbgt.toFixed(1)}°C</b> <span class="tier t-${a.tier}">${a.tier.toUpperCase()}</span> · Air ${d.temp.toFixed(1)}°C · RH ${d.rh}% · Work ${a.workMin} / Rest ${a.restMin} · Water ${a.waterLph} L/h — ${a.action}`;
+}
+$("chart").addEventListener("mousemove", (e) => chartInspect(e.clientX));
+$("chart").addEventListener("touchstart", (e) => chartInspect(e.touches[0].clientX), { passive: true });
+$("chart").addEventListener("touchmove", (e) => chartInspect(e.touches[0].clientX), { passive: true });
+$("chart").addEventListener("click", (e) => chartInspect(e.clientX));
+
 function buildSchedule() {
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
   const rows = hourlyData
@@ -113,6 +133,15 @@ function buildSchedule() {
       return `<tr><td>${String(d.time.getHours()).padStart(2, "0")}:00</td><td>${d.wbgt.toFixed(1)}</td><td><span class="tier t-${a.tier}">${a.tier}</span></td><td>${a.workMin} / ${a.restMin}</td><td>${a.waterLph} L/h</td><td>${a.action}</td></tr>`;
     });
   document.querySelector("#schedTable tbody").innerHTML = rows.join("") || `<tr><td colspan="6">No data — load a forecast first.</td></tr>`;
+  document.querySelectorAll("#schedTable tbody tr").forEach((tr) => {
+    tr.style.cursor = "pointer";
+    tr.onclick = () => {
+      document.querySelectorAll("#schedTable tbody tr").forEach((x) => x.style.background = "");
+      tr.style.background = "#fef3c7";
+      const cells = tr.querySelectorAll("td");
+      if (cells.length >= 6) $("schedDetail").innerHTML = `<b>${cells[0].textContent}</b> — WBGT ${cells[1].textContent}°C, tier ${cells[2].textContent}, work/rest ${cells[3].textContent} min, water ${cells[4].textContent}. ${cells[5].textContent}`;
+    };
+  });
 }
 
 // Peak-summer simulation: November demos are mild in Abu Dhabi, so judges
@@ -178,9 +207,9 @@ function renderDemo() {
   const kpi = (label, val) => `<div class="kpi"><div class="big">${val}</div><div class="muted">${label}</div></div>`;
   $("demoBody").innerHTML =
     `<div class="kpis">${kpi("worker-days protected (simulated)", k.workerDays)}${kpi("peak WBGT °C (simulated week)", k.peakWbgt.toFixed(1))}${kpi("crew-hours at RED or STOP tier", k.totalRedOrWorse)}${kpi("alerts issued (simulated)", k.alertsIssued)}${kpi("average rest compliance", (k.avgCompliance * 100).toFixed(0) + "%")}</div>` +
-    `<table><thead><tr><th>Crew</th><th>Site</th><th>Workers</th><th>Workload</th><th>Crew type</th><th>STOP hours</th><th>Rest compliance</th><th>Status</th></tr></thead><tbody>` +
+    `<div class="tablewrap"><table><thead><tr><th>Crew</th><th>Site</th><th>Workers</th><th>Workload</th><th>Crew type</th><th>STOP hours</th><th>Rest compliance</th><th>Status</th></tr></thead><tbody>` +
     w.crews.map((c) => `<tr><td><b>${c.id}</b></td><td>${c.site}</td><td>${c.workers}</td><td>${c.workload}</td><td>${c.acclimatised ? "Acclimatised" : "New / returning"}</td><td>${c.stopHours}</td><td>${(c.compliance * 100).toFixed(0)}% (${c.restsTaken}/${c.restEvents})</td><td>${c.compliance < 0.7 ? '<span class="tier t-red">Early-alert adaptation ON</span>' : '<span class="tier t-green">Normal</span>'}</td></tr>`).join("") +
-    `</tbody></table>` +
+    `</tbody></table></div>` +
     `<h3>Week timeline (simulated)</h3><ul>` + w.timeline.map((t) => `<li><b>${t.when}</b> — ${t.what}</li>`).join("") + `</ul>` +
     `<p class="muted">Reading this honestly: in a peak Gulf week the engine flags many midday hours as STOP for heavy categories. That aligns with the UAE's statutory midday break (12:30–15:00, mid-June to mid-September) — HeatShield's value is making the call hour-by-hour, per crew and workload, before the day starts, and proving rests happened.</p>`;
 }
@@ -192,3 +221,12 @@ $("langToggle").onclick = () => { lang = lang === "en" ? "ar" : "en"; render(); 
 $("ackBtn").onclick = () => logCompliance(true);
 $("missBtn").onclick = () => logCompliance(false);
 loadForecast().catch((e) => { $("status").textContent = "Failed: " + e.message; });
+// Auto-refresh the live forecast every 10 minutes (not in scenario mode).
+let refreshIn = 600;
+setInterval(() => {
+  const badge = $("liveBadge");
+  if (!badge || badge.textContent.includes("SCENARIO")) return;
+  refreshIn -= 1;
+  const el = $("autoRefresh"); if (el) el.textContent = `· auto-refresh in ${Math.floor(refreshIn / 60)}:${String(refreshIn % 60).padStart(2, "0")}`;
+  if (refreshIn <= 0) { refreshIn = 600; loadForecast().catch(() => {}); }
+}, 1000);
